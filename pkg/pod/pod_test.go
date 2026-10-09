@@ -7,9 +7,9 @@ import (
 
 func TestGetPodTypeAndTypeName(t *testing.T) {
 	tests := []struct {
-		name       string
-		labels     map[string]string
-		wantType   POD_TYPE
+		name         string
+		labels       map[string]string
+		wantType     POD_TYPE
 		wantTypeName string
 	}{
 		{
