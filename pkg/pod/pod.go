@@ -21,6 +21,11 @@ const (
 	// is billed, so a pod classified differently here is silently unbilled.
 	POD_TYPE_DEVBOX POD_TYPE = 10
 
+	// Every CHECK_*_LABEL_KEY / *_TYPE_LABEL_KEY read by GetPodTypeAndTypeName
+	// must also be listed in cachedPodLabelKeys
+	// (internal/k8s_watcher/cache.go); the informer cache transform strips all
+	// other labels before Reconcile sees them, which silently forces the
+	// affected pod type to fall back to OTHER.
 	CHECK_DB_LABEL_KEY       = "apps.kubeblocks.io/component-name"
 	CHECK_TERMINAL_LABEL_KEY = "TerminalID"
 	CHECK_APP_LABEL_KEY      = "app"
@@ -33,6 +38,9 @@ const (
 	DEVBOX_TYPE_LABEL_KEY    = "app.kubernetes.io/name"
 )
 
+// GetPodTypeAndTypeName maps pod labels to the billing app type. Any label key
+// consulted here must be kept in cachedPodLabelKeys, otherwise the label never
+// reaches this function and the pod is billed as OTHER.
 func GetPodTypeAndTypeName(ctx context.Context, labels map[string]string) (POD_TYPE, string) {
 	var podTypeName string
 	if dbID, isDB := labels[CHECK_DB_LABEL_KEY]; isDB && dbID != "" {
