@@ -22,8 +22,10 @@ func TestTransformPodKeepsOnlyWatcherFields(t *testing.T) {
 			Namespace:       "default",
 			ResourceVersion: "42",
 			Labels: map[string]string{
-				podlib.CHECK_APP_LABEL_KEY: "app-name",
-				"unused":                   "large-value",
+				podlib.CHECK_APP_LABEL_KEY:    "app-name",
+				podlib.CHECK_DEVBOX_LABEL_KEY: "devbox",
+				podlib.DEVBOX_TYPE_LABEL_KEY:  "jk10",
+				"unused":                      "large-value",
 			},
 			Annotations:   map[string]string{"large": "value"},
 			ManagedFields: []metav1.ManagedFieldsEntry{{Manager: "manager"}},
@@ -55,6 +57,10 @@ func TestTransformPodKeepsOnlyWatcherFields(t *testing.T) {
 	assert.Equal(t, "10.0.0.2", slim.Status.PodIP)
 	assert.Equal(t, "10.0.0.1", slim.Status.HostIP)
 	assert.Equal(t, "app-name", slim.Labels[podlib.CHECK_APP_LABEL_KEY])
+	// regression: devbox keys must survive the transform, otherwise devbox
+	// pods are classified as OTHER and their traffic goes unbilled
+	assert.Equal(t, "devbox", slim.Labels[podlib.CHECK_DEVBOX_LABEL_KEY])
+	assert.Equal(t, "jk10", slim.Labels[podlib.DEVBOX_TYPE_LABEL_KEY])
 	assert.NotContains(t, slim.Labels, "unused")
 	assert.Equal(t, int32(8080), slim.Spec.Containers[0].Ports[0].ContainerPort)
 	assert.Empty(t, slim.Spec.Containers[0].Image)

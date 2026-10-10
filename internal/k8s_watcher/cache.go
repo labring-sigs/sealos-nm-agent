@@ -11,12 +11,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// cachedPodLabelKeys must include every label key read by
+// podlib.GetPodTypeAndTypeName; keys missing here are stripped from the
+// informer cache before Reconcile sees them, which silently forces the
+// matching pod type to the OTHER fallback.
 var cachedPodLabelKeys = []string{
 	podlib.CHECK_DB_LABEL_KEY,
 	podlib.CHECK_TERMINAL_LABEL_KEY,
 	podlib.CHECK_APP_LABEL_KEY,
 	podlib.CHECK_JOB_LABEL_KEY,
+	podlib.CHECK_DEVBOX_LABEL_KEY,
 	podlib.DB_TYPE_LABEL_KEY,
+	podlib.DEVBOX_TYPE_LABEL_KEY,
 }
 
 func CacheOptions() cache.Options {
